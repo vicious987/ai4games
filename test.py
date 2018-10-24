@@ -10,19 +10,25 @@ enemy = 1 if me == 0 else 0
 ghost = -1
 
 if me == 0:
+    my_team_ids = range(0, team_size)
+else:
+    my_team_ids = range(team_size, 2*team_size)
+
+    #places
+if me == 0:
     my_base, enemy_base = (0,0), (16000, 9000)
 else:
     my_base, enemy_base = (16000, 9000), (0,0)
 
 shortwall_dest = (3500, 7500) if me == 0 else (12000, 2000)
 longwall_dest = (10000, 3000) if me == 0 else (5000, 6000)
+center = (8000, 4500)
 
-ghost_dict = defaultdict(lambda: (-1, -1, -1))
-enemy_dict = defaultdict(lambda: (-1, -1, -1, -1))
-friend_dict = defaultdict(lambda: (-1, -1, -1, -1))
-
-#def distance (x1, y1, x2, y2):
-#    return int(math.sqrt(pow(x1 - x2,2)+ pow(y1 - y2,2)))
+#knowledge base
+ghost_dict = {}
+enemy_dict = {}
+friend_dict = {}
+score_dict = {}
 
 def distance (pos_1, pos_2):
     return int(math.sqrt(pow(pos_1[0] - pos_2[0], 2) + pow(pos_2[0] - pos_2[1], 2)))
@@ -34,20 +40,7 @@ def line (x1, y1, x2, y2):
 def belowline (x, y, a, b):
     return (a * x + -1 * y + b) < 0
 
-def move_to_home():
-    return f"MOVE {my_base[0]} {my_base[1]}" 
-
-def move_to(destination):
-    return f"MOVE {destination[0]} {destination[1]}"
-
-def bust_ghost(g_id):
-    return f"BUST {g_id}"
-
-def release_ghost():
-    return f"RELASE" 
-
-def bustable(buster_pos, ghost_pos):
-    if distance(buster_pos[0], buster_pos[1], 
+'''
 class Agent_shepherd:
 
     def __init__(self, init_e_id, init_dest_x, init_dest_y, init_pos_x, init_pos_y,init_team):
@@ -78,21 +71,33 @@ class Agent_shepherd:
             move_to(destination)      
         #else:
             #push the target
+'''
 
 class Agent_normal:
 
-    def __init__(self, init_e_id, init_dest_x, init_dest_y, init_pos_x, init_pos_y,init_team):
+    def __init__(self, init_e_id, init_team):
         self.e_id = init_e_id
-        self.destination = (init_dest_x, init_dest_y)
-        self.dest_reached = False
-        self.base_reached = False
-        self.gather_done = False
-        self.position = (init_pos_x, init_pos_y)
+        self.position = (-1,-1)
         self.team = init_team
-        #self.base_pos = (0,0) if self.team == 0 else (16000,9000)
+        self.carrying = False
 
-    def update_position(self, x, y):
-        self.position = (x, y)
+    def move_to(self, destination):
+        return f"MOVE {destination[0]} {destination[1]}"
+
+    def bust_ghost(self, g_id):
+        self.carrying = True
+        return f"BUST {g_id}"
+
+    def release_ghost(self):
+        self.carrying = False
+        return f"RELEASE" 
+
+    def bustable(self, buster_pos, ghost_pos):
+        return 900 < distance(buster_pos, ghost_pos) < 1760 
+
+#fix for home
+    def update_position(self, newpos):
+        self.position = newpos
         self.home_reached = True if self.position == my_base else False
         self.dest_reached = True if self.position == destination else False
 
@@ -100,62 +105,55 @@ class Agent_normal:
         self.destination = new_dest
 
     def gather_ghost(self, ghost_id, ghost_pos):
-        if carrying:
-            if not home_reached:
-                return release_ghost()
+        if self.carrying:
+            if self.home_reached:
+                return self.release_ghost()
             else:
-                move_to(my_base)
-        elif within_bustin_range(ghost pos):
-            bust_ghost(ghost_id)
+                self.move_to(my_base)
+        elif self.bustable(self.position, ghost_pos):
+            self.bust_ghost(ghost_id)
         else:
-            move_to(ghost_pos)
+            self.move_to(ghost_pos)
 
 
     def gameloop(self):
-        #if not targeted,
-            #if possible target a ghost
-            #else explore
-        #else
-            #if ghost not reached
-                #go to ghost
-            #else (ghost reached)
-                #and not busted
-                    #bust him
-                #(busted)
-                    #if not at home
-                        #go go to home
+        choose_target()
 
 
 
 
-#'''
-
-
-
-shepherd = Agent_shepherd(0
-# game loop
-while True:
-    entities = int(input())  # the number of busters and ghosts visible to you
+buster_dict = {} 
+for x in my_team_ids:
+    buster_team[x] = Agent_normal(x, me)
+    
+ 
+def update_knowledge_base():
+    entities = int(input())
     for i in range(entities):
-        # entity_id: buster id or ghost id
-        # y: position of this buster / ghost
-        # entity_type: the team id if it is a buster, -1 if it is a ghost.
-        # state: For busters: 0=idle, 1=carrying a ghost.
-        # value: For busters: Ghost id being carried. For ghosts: number of busters attempting to trap this ghost.
-        e_id, x, y, e_type, is_carrying, value = [int(j) for j in input().split()]
-        ## write down the knowledge
+        e_id, x, y, e_type, state, value = [int(j) for j in input().split()]
+
         if e_type == ghost:
-            ghost_dict[e_id] = (x, y, value))
+            ghost_dict[e_id] = (x, y)
+            if e_id in score_dict:
+                score_dict[e_id]["score"] = distance(center, (x, y))
+            else:
+                score_dict[e_id] = {"score" : distance(center, (x, y)), "targeted" : False}
         elif e_type ==  enemy:
-            enemy_dict[e_id] = (x, y, is_carrying, value)
-        elif e_type == me:
-            friend_dict[e_id] = (x, y, is_carrying, value)
-    for i in range(team_size):
+            enemy_dict[e_id] = {"pos" : (x, y), "is_carrying" : state, "ghost_carried" : value}
+        else:
+            friend_dict[e_id] = {"pos" : (x, y), "is_carrying" : state, "ghost_carried" : value}
 
-        # Write an action using print
-        # To debug: print("Debug messages...", file=sys.stderr)
+def update_buster_position():
+    for buster_id, buster_pos in friend_dict.items():
+        buster_team[buster_id].update_position(buster_pos)
+        
 
-        # MOVE x y | BUST id | RELEASE
-        print("MOVE 8000 4500")
+while True:
+    update_knowledge_base()
+    update_buster_position()
+    for current_buster in my_team_ids:
+        print(buster_team[current_buster].gameplay_loop())
+
+
 
 #'''
