@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 # pylint: disable=missing-docstring
-import sys
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=invalid-name,locally-disabled
 import math
 
-team_size= int(input())
+team_size = int(input())
 ghost_count = int(input())
 me = int(input())
 
@@ -19,9 +20,9 @@ else:
     #places
 sfd = 5 #safety distance
 if me == 0:
-    my_base, enemy_base = (0+sfd,0+sfd), (16000-sfd, 9000-sfd)
+    my_base, enemy_base = (0+sfd, 0+sfd), (16000-sfd, 9000-sfd)
 else:
-    my_base, enemy_base = (16000-sfd, 9000-sfd), (0+sfd,0+sfd)
+    my_base, enemy_base = (16000-sfd, 9000-sfd), (0+sfd, 0+sfd)
 
 shortwall_dest = (3500, 7500) if me == 0 else (12000, 2000)
 longwall_dest = (10000, 3000) if me == 0 else (5000, 6000)
@@ -34,7 +35,7 @@ enemy_dict = {}
 friend_dict = {}
 
 #scouting stuff
-scouting_phase_turns = 10 
+scouting_phase_turns = 10
 mx = 16000
 my = 9000
 x_sc = 16000 / (team_size + 1)
@@ -46,60 +47,24 @@ def scout_pos(destination):
     return f"MOVE {destination[0]} {destination[1]}"
 
 #misc
-def distance (pos_1, pos_2):
+def distance(pos_1, pos_2):
     return int(math.sqrt(pow(pos_1[0] - pos_2[0], 2) + pow(pos_2[0] - pos_2[1], 2)))
 
-def line (x1, y1, x2, y2):
-    a =  (y2 - y1)/(x2 - x1)
-    return (a, y1 - a) 
+def line(x1, y1, x2, y2):
+    a = (y2 - y1)/(x2 - x1)
+    return (a, y1 - a)
 
-def below_line (x, y, a, b):
+def below_line(x, y, a, b):
     return (a * x + -1 * y + b) < 0
-
-'''
-class Agent_shepherd:
-
-    def __init__(self, init_e_id, init_dest_x, init_dest_y, init_pos_x, init_pos_y,init_team):
-        self.e_id = init_e_id
-        self.target_queue = []
-        self.destination = (init_dest_x, init_dest_y)
-        self.dest_reached = False
-        self.wall_reached = False
-        self.base_reached = False
-        self.position = (init_pos_x, init_pos_y)
-        self.team = init_team
-        #self.base_pos = (0,0) if self.team == 0 else (16000,9000)
-        #self.wall_pos = (0, init_dest_y) if self.team == 0 else (16000, init_dest_y)
-        
-    def update_position(x, y):
-        self.position = (x, y)
-        dest_reached = True if self.position == destination
-        wall_reached = True if self.position == wall_pos and dest_reached
-        base_reached = True if self.position == my_base and dest_reached and wall_reached
-
-    def gameloop_str(self):
-        if self.dest_reached:
-            if wall_reached:
-                return move_to(my_base)
-            else:
-                return move_to(wall)
-        elif not self.target_queue: #move along the path
-            move_to(destination)      
-        #else:
-            #push the target
-
-'''
 
 class Agent_normal:
 
     def __init__(self, init_e_id, init_team):
-        self.e_id = init_e_id
-        self.position = (-1,-1)
-        self.team = init_team
-        self.carrying = False
-        self.target = 0
-        self.target_pos = (-1,-1)
+        self.e_id, self.team = init_e_id, init_team
 
+        self.target = 0
+        self.position = self.destination = self.target_pos = (-1, -1)
+        self.carrying = self.home_reached = False
 
     def move_to(self, destination):
         return f"MOVE {destination[0]} {destination[1]}"
@@ -111,10 +76,10 @@ class Agent_normal:
     def release_ghost(self):
         self.carrying = False
         self.target = 0
-        return f"RELEASE" 
+        return f"RELEASE"
 
     def bustable(self, buster_pos, ghost_pos):
-        return 900 < distance(buster_pos, ghost_pos) < 1760 
+        return 900 < distance(buster_pos, ghost_pos) < 1760
 
 #fix for home
     def update_position(self, newpos):
@@ -122,10 +87,10 @@ class Agent_normal:
         self.home_reached = True if self.position == my_base else False
 
     def avaible_targets(self):
-        return [(e_id, x["position"], x["score"]) for e_id, x in gd.items() if not x["targeted"]]
+        return [(e_id, x["position"], x["score"]) for e_id, x in ghost_dict.items() if not x["targeted"]]
 
     def choose_new_target(self):
-        nt = min(avaible_targets, key=lambda x:x[2])
+        nt = min(self.avaible_targets(), key=lambda x: x[2])
         ghost_dict[nt[0]]["targeted"] = True
         return nt
 
@@ -154,16 +119,15 @@ class Agent_normal:
 
 
 #busters init
-buster_team = {} 
-for x in my_team_ids:
-    buster_team[x] = Agent_normal(x, me)
+buster_team = {}
+for j in my_team_ids:
+    buster_team[j] = Agent_normal(j, me)
 
 
-    
- 
+
 def update_knowledge_base():
     entities = int(input())
-    for i in range(entities):
+    for _ in range(entities):
         e_id, x, y, e_type, state, value = [int(j) for j in input().split()]
 
         if e_type == ghost:
@@ -172,7 +136,7 @@ def update_knowledge_base():
                 ghost_dict[e_id]["score"] = distance(center, (x, y))
             else:
                 ghost_dict[e_id] = {"position": (x, y), "score" : distance(center, (x, y)), "targeted" : False}
-        elif e_type ==  enemy:
+        elif e_type == enemy:
             enemy_dict[e_id] = {"pos" : (x, y), "is_carrying" : state, "ghost_carried" : value}
         else:
             friend_dict[e_id] = {"pos" : (x, y), "is_carrying" : state, "ghost_carried" : value}
@@ -180,17 +144,17 @@ def update_knowledge_base():
 def update_buster_position():
     for buster_id, buster_pos in friend_dict.items():
         buster_team[buster_id].update_position(buster_pos)
-        
 
 while True:
     update_knowledge_base()
     update_buster_position()
-    while(scouting_phase_turns):
+    if scouting_phase_turns:
         for scout_dest in scouting_dest_list:
             print(scout_pos(scout_dest))
         scouting_phase_turns -= 1
-    #for current_buster in my_team_ids:
-    #    print(buster_team[current_buster].gameplay_loop())
+    else:
+        for current_buster in my_team_ids:
+            print(buster_team[current_buster].gameloop())
 
 
 
