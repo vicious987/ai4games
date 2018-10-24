@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+
+# pylint: disable=missing-docstring
 import sys
 import math
 
