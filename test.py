@@ -17,14 +17,16 @@ else:
     my_team_ids = range(team_size, 2*team_size)
 
     #places
+sfd = 5 #safety distance
 if me == 0:
-    my_base, enemy_base = (0,0), (16000, 9000)
+    my_base, enemy_base = (0+sfd,0+sfd), (16000-sfd, 9000-sfd)
 else:
-    my_base, enemy_base = (16000, 9000), (0,0)
+    my_base, enemy_base = (16000-sfd, 9000-sfd), (0+sfd,0+sfd)
 
 shortwall_dest = (3500, 7500) if me == 0 else (12000, 2000)
 longwall_dest = (10000, 3000) if me == 0 else (5000, 6000)
 center = (8000, 4500)
+
 
 #knowledge base
 ghost_dict = {}
@@ -32,15 +34,18 @@ enemy_dict = {}
 friend_dict = {}
 
 #scouting stuff
-scouting_phase_turns = 3
+scouting_phase_turns = 10 
+mx = 16000
+my = 9000
 x_sc = 16000 / (team_size + 1)
 y_sc = 9000 / (team_size + 1)
-scouting_dest_list = [(int(x_sc * i), int(y_sc * i)) for i in range(1, team_size + 1)]
 
-def scout_pos(pos):
-    return f"MOVE {pos[0]} {pos[1]}"
+scouting_dest_list = [(int(x_sc * i), int(9000- y_sc * i)) for i in range(1, team_size + 1)]
 
+def scout_pos(destination):
+    return f"MOVE {destination[0]} {destination[1]}"
 
+#misc
 def distance (pos_1, pos_2):
     return int(math.sqrt(pow(pos_1[0] - pos_2[0], 2) + pow(pos_2[0] - pos_2[1], 2)))
 
@@ -115,7 +120,6 @@ class Agent_normal:
     def update_position(self, newpos):
         self.position = newpos
         self.home_reached = True if self.position == my_base else False
-        self.dest_reached = True if self.position == destination else False
 
     def avaible_targets(self):
         return [(e_id, x["position"], x["score"]) for e_id, x in gd.items() if not x["targeted"]]
@@ -149,11 +153,12 @@ class Agent_normal:
             #explore()
 
 
-
-
+#busters init
 buster_team = {} 
 for x in my_team_ids:
     buster_team[x] = Agent_normal(x, me)
+
+
     
  
 def update_knowledge_base():
@@ -182,12 +187,10 @@ while True:
     update_buster_position()
     while(scouting_phase_turns):
         for scout_dest in scouting_dest_list:
-            scout(scout_dest)
+            print(scout_pos(scout_dest))
         scouting_phase_turns -= 1
-
-
-    for current_buster in my_team_ids:
-        print(buster_team[current_buster].gameplay_loop())
+    #for current_buster in my_team_ids:
+    #    print(buster_team[current_buster].gameplay_loop())
 
 
 
