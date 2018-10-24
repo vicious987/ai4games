@@ -32,9 +32,10 @@ enemy_dict = {}
 friend_dict = {}
 
 #scouting stuff
+scouting_phase_turns = 3
 x_sc = 16000 / (team_size + 1)
 y_sc = 9000 / (team_size + 1)
-scouting_dest = [(int(x_sc * i), int(y_sc * i)) for i in range(1, team_size + 1)]
+scouting_dest_list = [(int(x_sc * i), int(y_sc * i)) for i in range(1, team_size + 1)]
 
 def scout_pos(pos):
     return f"MOVE {pos[0]} {pos[1]}"
@@ -179,8 +180,11 @@ def update_buster_position():
 while True:
     update_knowledge_base()
     update_buster_position()
-    while(scouting_phase):
-        for current_buster in my_team_ids:
+    while(scouting_phase_turns):
+        for scout_dest in scouting_dest_list:
+            scout(scout_dest)
+        scouting_phase_turns -= 1
+
 
     for current_buster in my_team_ids:
         print(buster_team[current_buster].gameplay_loop())
