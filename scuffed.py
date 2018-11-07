@@ -30,16 +30,25 @@ ENEMY = -1
 gameboard = Tboard()
 
 while True:
+    print(f"start of turn", file=sys.stderr)
     enemy_row, enemy_col = [int(i) for i in input().split()]
+    print(f"enemy move: {enemy_row} - {enemy_col}", file=sys.stderr)
     if (enemy_row, enemy_col) != (-1,-1):
         gameboard.make_move(enemy_row, enemy_col, ENEMY)
     valid_action_count = int(input())
+    printf(f"no of possible moves :{valid_action_count", file=sys.stderr)
     possible_moves = []
     for i in range(valid_action_count):
         row, col = [int(j) for j in input().split()]
         possible_moves.append((row,col))
+    printf(f"possible moves:\n", file=sys.stderr)
+    printf(possible_moves, file=sys.stderr)
     winning_moves = [x for x in possible_moves if gameboard.is_move_winning(x[0],x[1],ME)]
+    printf(f"winning moves:\n", file=sys.stderr)
+    printf(winning_moves, file=sys.stderr)
     blocking_moves = [x for x in possible_moves if gameboard.is_move_winning(x[0],x[1],ENEMY)]
+    printf(f"blocking moves:\n", file=sys.stderr)
+    printf(blocking_moves, file=sys.stderr)
     if winning_moves:
         move = choice(winning_moves)
     elif blocking_moves:
@@ -48,3 +57,4 @@ while True:
         move = choice(possible_moves)
     gameboard.make_move(move[0], move[1], ME)
     print(f"{move[0]} {move[1]}")
+    print(f"end of turn", file=sys.stderr)
