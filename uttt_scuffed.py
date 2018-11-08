@@ -16,7 +16,8 @@ class Tboard:
         temp_board = self.board
         temp_board[move_row][move_col] = player
         row_sum = sum(temp_board[move_row])
-        col_sum = sum([x[move_col] for x in temp_board])
+        #col_sum = sum([x[move_col] for x in temp_board])
+        col_sum = sum([temp_board[i][move_col] for i in range(3)])
         diag1_sum = sum([temp_board[0+i][0+i] for i in range(3)])
         diag2_sum = sum([temp_board[2-i][0+i] for i in range(3)])
         return win_score in [row_sum, col_sum, diag1_sum, diag2_sum]
@@ -35,25 +36,23 @@ for x in range(3):
     row2.append(Tboard())
     row3.append(Tboard())
 big_board = [row1, row2, row3]
-current_small_board = big_board[1][1]
 
 while True:
-    current_board = big_board[1][1]
     #print(f"start of turn", file=sys.stderr)
     enemy_row, enemy_col = [int(i) for i in input().split()]
     #print(f"enemy move: {enemy_row} - {enemy_col}", file=sys.stderr)
     if (enemy_row, enemy_col) != (-1,-1):
-        board_row, board_col = enemy_row // 3, enemy_col // 3
+        enemy_board_row, enemy_board_col = enemy_row // 3, enemy_col // 3
         enemy_move_row, enemy_move_col = enemy_row % 3, enemy_col % 3
-        big_board[board_row][board_col].make_move(enemy_move_row, enemy_move_col, ENEMY)
+        big_board[enemy_board_row][enemy_board_col].make_move(enemy_move_row, enemy_move_col, ENEMY)
     valid_action_count = int(input())
     #print(f"no of possible moves :{valid_action_count}", file=sys.stderr)
     possible_moves = []
     for i in range(valid_action_count):
         my_row, my_col = [int(j) for j in input().split()]
-        board_row, board_col = my_row // 3, my_col // 3
+        my_board_row, my_board_col = my_row // 3, my_col // 3
         my_move_row, my_move_col = my_row % 3, my_col % 3
-        possible_moves.append((board_row, board_col, my_move_row, my_move_col))
+        possible_moves.append((my_board_row, my_board_col, my_move_row, my_move_col))
         #possible_moves.append({'board_row': board_row, 'board_col': board_col, 'my_move_row' : my_move_row, 'my_move_col' : my_move_col})
     #print(f"possible moves:\n", file=sys.stderr)
     #print(possible_moves, file=sys.stderr)
@@ -65,10 +64,13 @@ while True:
     #print(blocking_moves, file=sys.stderr)
     if winning_moves:
         move = choice(winning_moves)
+        #print(f"winning chosen:\n", file=sys.stderr)
     elif blocking_moves:
         move = choice(blocking_moves)
+        #print(f"blocking chosen:\n", file=sys.stderr)
     else:
         move = choice(possible_moves)
+        #print(f"random chosen:\n", file=sys.stderr)
     big_board[move[0]][move[1]].make_move(move[2],move[3], ME)
     cc_move_row, cc_move_col = move[0] * 3 + move[2], move[1] * 3 + move[3]
     print(f"{cc_move_row} {cc_move_col}")
