@@ -56,10 +56,29 @@ while True:
         #possible_moves.append({'board_row': board_row, 'board_col': board_col, 'my_move_row' : my_move_row, 'my_move_col' : my_move_col})
     #print(f"possible moves:\n", file=sys.stderr)
     #print(possible_moves, file=sys.stderr)
-    winning_moves = [x for x in possible_moves if big_board[x[0]][x[1]].is_move_winning(x[2],x[3],ME)]
+
+    ##winning_moves = [x for x in possible_moves if big_board[x[0]][x[1]].is_move_winning(x[2],x[3],ME)]
+
+    winning_moves = []
+    for x in possible_moves:
+        #print(f"checking {x}", file=sys.stderr)
+        if big_board[x[0]][x[1]].is_move_winning(x[2],x[3],ME):
+            #print(f"it is winning, file=sys.stderr)
+            winning_moves.append(x)
+        else:
+            #print(f"is is NOT winning, file=sys.stderr)
     #print(f"winning moves:\n", file=sys.stderr)
     #print(winning_moves, file=sys.stderr)
-    blocking_moves = [x for x in possible_moves if big_board[x[0]][x[1]].is_move_winning(x[2],x[3],ENEMY)]
+
+    ##blocking_moves = [x for x in possible_moves if big_board[x[0]][x[1]].is_move_winning(x[2],x[3],ENEMY)]
+    blocking_moves = []
+    for x in possible_moves:
+        #print(f"checking {x}", file=sys.stderr)
+        if big_board[x[0]][x[1]].is_move_winning(x[2],x[3],ENEMY):
+            #print(f"it is winning, file=sys.stderr)
+            blocking_moves.append(x)
+        else:
+            #print(f"is is NOT winning, file=sys.stderr)
     #print(f"blocking moves:\n", file=sys.stderr)
     #print(blocking_moves, file=sys.stderr)
     if winning_moves:
