@@ -1,8 +1,9 @@
+
+
 import sys
 from random import choice
 import copy
 
-#pylint: disable=bad-whitespace, missing-docstring, invalid-name, bad-continuation, trailing-whitespace
 
 class Tboard:
     def __init__(self):
@@ -10,14 +11,12 @@ class Tboard:
                 [0, 0, 0],
                 [0, 0, 0],
                 [0, 0, 0]]
-        #self.edges = [(0,1), (1,0),(1,2),(2,1)]
 
     def is_move_winning(self, move_row, move_col, player):
         win_score = player * 3
         temp_board = copy.deepcopy(self.board)
         temp_board[move_row][move_col] = player
         row_sum = sum(temp_board[move_row])
-        #col_sum = sum([x[move_col] for x in temp_board])
         col_sum = sum([temp_board[i][move_col] for i in range(3)])
         diag1_sum = sum([temp_board[0+i][0+i] for i in range(3)])
         diag2_sum = sum([temp_board[2-i][0+i] for i in range(3)])
@@ -31,88 +30,38 @@ class Tboard:
 # game loop
 ME = 1
 ENEMY = -1
-#row1 = row2 = row3 = []
-#for x in range(3):
-#    row1.append(Tboard())
-#    row2.append(Tboard())
-#    row3.append(Tboard())
-b00 = Tboard()
-b01 = Tboard()
-b02 = Tboard()
-b10 = Tboard()
-b11 = Tboard()
-b12 = Tboard()
-b20 = Tboard()
-b21 = Tboard()
-b22 = Tboard()
-#big_board = [row1, row2, row3]
-big_board = [
-        [b00, b01, b02],
-        [b10, b11, b12],
-        [b20, b21, b22]]
+row1 = row2 = row3 = []
+for x in range(3):
+    row1.append(Tboard())
+    row2.append(Tboard())
+    row3.append(Tboard())
+
+big_board = [row1, row2, row3]
 
 while True:
-    br, bc = 1, 1
-    print(big_board[br][bc].board[0], file=sys.stderr)
-    print(big_board[br][bc].board[1], file=sys.stderr)
-    print(big_board[br][bc].board[2], file=sys.stderr)
-    #print(f"start of turn", file=sys.stderr)
     enemy_row, enemy_col = [int(i) for i in input().split()]
-    #print(f"enemy move: {enemy_row} - {enemy_col}", file=sys.stderr)
     if (enemy_row, enemy_col) != (-1,-1):
         enemy_board_row, enemy_board_col = enemy_row // 3, enemy_col // 3
         enemy_move_row, enemy_move_col = enemy_row % 3, enemy_col % 3
         big_board[enemy_board_row][enemy_board_col].make_move(enemy_move_row, enemy_move_col, ENEMY)
     valid_action_count = int(input())
-    #print(f"no of possible moves :{valid_action_count}", file=sys.stderr)
     possible_moves = []
     for i in range(valid_action_count):
         my_row, my_col = [int(j) for j in input().split()]
         my_board_row, my_board_col = my_row // 3, my_col // 3
         my_move_row, my_move_col = my_row % 3, my_col % 3
         possible_moves.append((my_board_row, my_board_col, my_move_row, my_move_col))
-        #possible_moves.append({'board_row': board_row, 'board_col': board_col, 'my_move_row' : my_move_row, 'my_move_col' : my_move_col})
-    #print(f"possible moves:\n", file=sys.stderr)
-    #print(possible_moves, file=sys.stderr)
 
-    ##winning_moves = [x for x in possible_moves if big_board[x[0]][x[1]].is_move_winning(x[2],x[3],ME)]
+    winning_moves = [x for x in possible_moves if big_board[x[0]][x[1]].is_move_winning(x[2],x[3],ME)]
 
-    winning_moves = []
-    br, bc = possible_moves[0][0], possible_moves[0][1]
-    print(big_board[br][bc].board[0], file=sys.stderr)
-    print(big_board[br][bc].board[1], file=sys.stderr)
-    print(big_board[br][bc].board[2], file=sys.stderr)
-    for x in possible_moves:
-        print(f"checking {x}", file=sys.stderr)
-        if big_board[x[0]][x[1]].is_move_winning(x[2],x[3],ME):
-            print(f"it is winning", file=sys.stderr)
-            winning_moves.append(x)
-        else:
-            print(f"is is NOT winning", file=sys.stderr)
-    #print(f"winning moves:\n", file=sys.stderr)
-    #print(winning_moves, file=sys.stderr)
 
-    ##blocking_moves = [x for x in possible_moves if big_board[x[0]][x[1]].is_move_winning(x[2],x[3],ENEMY)]
-    blocking_moves = []
-    for x in possible_moves:
-        #print(f"checking {x}", file=sys.stderr)
-        if big_board[x[0]][x[1]].is_move_winning(x[2],x[3],ENEMY):
-            #print(f"it is winning", file=sys.stderr)
-            blocking_moves.append(x)
-        #else:
-            #print(f"is is NOT winning", file=sys.stderr)
-    #print(f"blocking moves:\n", file=sys.stderr)
-    #print(blocking_moves, file=sys.stderr)
+    blocking_moves = [x for x in possible_moves if big_board[x[0]][x[1]].is_move_winning(x[2],x[3],ENEMY)]
     if winning_moves:
         move = choice(winning_moves)
-        #print(f"winning chosen:\n", file=sys.stderr)
     elif blocking_moves:
         move = choice(blocking_moves)
-        #print(f"blocking chosen:\n", file=sys.stderr)
     else:
         move = choice(possible_moves)
-        #print(f"random chosen:\n", file=sys.stderr)
     big_board[move[0]][move[1]].make_move(move[2],move[3], ME)
     cc_move_row, cc_move_col = move[0] * 3 + move[2], move[1] * 3 + move[3]
     print(f"{cc_move_row} {cc_move_col}")
-    #print(f"end of turn", file=sys.stderr)
