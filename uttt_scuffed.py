@@ -1,5 +1,6 @@
 import sys
 from random import choice
+import copy
 
 #pylint: disable=bad-whitespace, missing-docstring, invalid-name, bad-continuation, trailing-whitespace
 
@@ -13,7 +14,7 @@ class Tboard:
 
     def is_move_winning(self, move_row, move_col, player):
         win_score = player * 3
-        temp_board = self.board
+        temp_board = copy.deepcopy(self.board)
         temp_board[move_row][move_col] = player
         row_sum = sum(temp_board[move_row])
         #col_sum = sum([x[move_col] for x in temp_board])
@@ -51,6 +52,10 @@ big_board = [
         [b20, b21, b22]]
 
 while True:
+    br, bc = 1, 1
+    print(big_board[br][bc].board[0], file=sys.stderr)
+    print(big_board[br][bc].board[1], file=sys.stderr)
+    print(big_board[br][bc].board[2], file=sys.stderr)
     #print(f"start of turn", file=sys.stderr)
     enemy_row, enemy_col = [int(i) for i in input().split()]
     #print(f"enemy move: {enemy_row} - {enemy_col}", file=sys.stderr)
@@ -74,9 +79,9 @@ while True:
 
     winning_moves = []
     br, bc = possible_moves[0][0], possible_moves[0][1]
-    printf(big_board[br][bc].board[0], file=sys.stderr)
-    printf(big_board[br][bc].board[1], file=sys.stderr)
-    printf(big_board[br][bc].board[2], file=sys.stderr)
+    print(big_board[br][bc].board[0], file=sys.stderr)
+    print(big_board[br][bc].board[1], file=sys.stderr)
+    print(big_board[br][bc].board[2], file=sys.stderr)
     for x in possible_moves:
         print(f"checking {x}", file=sys.stderr)
         if big_board[x[0]][x[1]].is_move_winning(x[2],x[3],ME):
