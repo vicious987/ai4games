@@ -9,7 +9,7 @@ class Tboard:
                 [0, 0, 0],
                 [0, 0, 0],
                 [0, 0, 0]]
-        self.edges = [(0,1), (1,0),(1,2),(2,1)]
+        #self.edges = [(0,1), (1,0),(1,2),(2,1)]
 
     def is_move_winning(self, move_row, move_col, player):
         win_score = player * 3
@@ -30,12 +30,25 @@ class Tboard:
 # game loop
 ME = 1
 ENEMY = -1
-row1 = row2 = row3 = []
-for x in range(3):
-    row1.append(Tboard())
-    row2.append(Tboard())
-    row3.append(Tboard())
-big_board = [row1, row2, row3]
+#row1 = row2 = row3 = []
+#for x in range(3):
+#    row1.append(Tboard())
+#    row2.append(Tboard())
+#    row3.append(Tboard())
+b00 = Tboard()
+b01 = Tboard()
+b02 = Tboard()
+b10 = Tboard()
+b11 = Tboard()
+b12 = Tboard()
+b20 = Tboard()
+b21 = Tboard()
+b22 = Tboard()
+#big_board = [row1, row2, row3]
+big_board = [
+        [b00, b01, b02],
+        [b10, b11, b12],
+        [b20, b21, b22]]
 
 while True:
     #print(f"start of turn", file=sys.stderr)
